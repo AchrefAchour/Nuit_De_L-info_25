@@ -29,10 +29,38 @@ router.post('/', authenticate, [
   body('name').notEmpty().withMessage('Name is required').trim(),
   body('type').optional().trim(),
   body('description').optional().trim(),
-  body('priority').optional().isIn(['low', 'medium', 'high', 'critical']),
-  body('dueDate').optional().isISO8601(),
-  body('tags').optional().isArray(),
-  body('contributors').optional().isArray(),
+  body('priority').optional().isIn(['low', 'medium', 'high', 'critical']).withMessage('Priority must be one of: low, medium, high, critical'),
+  body('dueDate').optional().custom((value) => {
+    if (!value) return true; // Optional field
+    // Accept ISO8601 or YYYY-MM-DD format
+    const iso8601Regex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (iso8601Regex.test(value) || dateRegex.test(value)) {
+      return true;
+    }
+    throw new Error('Due date must be in ISO8601 or YYYY-MM-DD format');
+  }),
+  body('tags').optional().custom((value) => {
+    if (!value) return true;
+    if (Array.isArray(value)) return true;
+    throw new Error('Tags must be an array');
+  }),
+  body('contributors').optional().custom((value) => {
+    if (!value) return true;
+    if (Array.isArray(value)) {
+      // Validate each contributor has id
+      for (const contrib of value) {
+        if (!contrib || typeof contrib !== 'object') {
+          throw new Error('Each contributor must be an object');
+        }
+        if (!contrib.id && !contrib.contributorId) {
+          throw new Error('Each contributor must have an id or contributorId');
+        }
+      }
+      return true;
+    }
+    throw new Error('Contributors must be an array');
+  }),
   validate,
 ], entitiesController.create);
 

@@ -93,8 +93,28 @@ const EntityCreate = () => {
     setLoading(true);
 
     try {
-      console.log('[EntityCreate] Submitting form data:', formData);
-      const data = await entitiesApi.create(formData);
+      // Clean and prepare data for submission
+      const submitData = {
+        name: formData.name.trim(),
+        type: formData.type || 'article',
+        description: formData.description.trim() || undefined,
+        priority: formData.priority || 'medium',
+        dueDate: formData.dueDate || undefined,
+        tags: formData.tags && formData.tags.length > 0 ? formData.tags : undefined,
+        contributors: formData.contributors && formData.contributors.length > 0 
+          ? formData.contributors.map(c => ({ id: c.id, role: c.role || 'editor' }))
+          : undefined,
+      };
+
+      // Remove undefined values
+      Object.keys(submitData).forEach(key => {
+        if (submitData[key] === undefined) {
+          delete submitData[key];
+        }
+      });
+
+      console.log('[EntityCreate] Submitting cleaned data:', submitData);
+      const data = await entitiesApi.create(submitData);
       navigate(`/app/solutions/${data.entity.id}`);
     } catch (err) {
       console.error('[EntityCreate] Error creating entity:', err);

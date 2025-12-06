@@ -134,6 +134,16 @@ const create = async (req, res) => {
   try {
     const { name, type, description, priority, dueDate, tags, contributors } = req.body;
 
+    console.log('[EntityCreate] Received data:', {
+      name,
+      type,
+      description: description?.substring(0, 50),
+      priority,
+      dueDate,
+      tagsCount: tags?.length || 0,
+      contributorsCount: contributors?.length || 0,
+    });
+
     // Get initial state
     const initialState = await State.findOne({ where: { isInitial: true } });
     if (!initialState) {
@@ -141,14 +151,19 @@ const create = async (req, res) => {
       return res.status(400).json({ error: 'No initial state configured.' });
     }
 
+    // Clean up data - convert empty strings to null
+    const cleanDueDate = dueDate && dueDate.trim() !== '' ? dueDate : null;
+    const cleanDescription = description && description.trim() !== '' ? description.trim() : null;
+    const cleanTags = Array.isArray(tags) ? tags : [];
+
     // Create entity
     const entity = await Entity.create({
-      name,
+      name: name.trim(),
       type: type || 'article',
-      description,
-      priority,
-      dueDate,
-      tags,
+      description: cleanDescription,
+      priority: priority || 'medium',
+      dueDate: cleanDueDate,
+      tags: cleanTags,
       currentStateId: initialState.id,
       createdBy: req.user.id,
     }, { transaction });
