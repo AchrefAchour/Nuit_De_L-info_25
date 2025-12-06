@@ -1,4 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
+console.log('[API] API_BASE configured as:', API_BASE); // Debug log
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -36,7 +37,10 @@ const handleResponse = async (response) => {
 };
 
 const apiRequest = async (endpoint, options = {}) => {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const url = `${API_BASE}${endpoint}`;
+  console.log(`[API] Requesting: ${url}`); // Debug log
+  
+  const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -44,6 +48,8 @@ const apiRequest = async (endpoint, options = {}) => {
       ...options.headers,
     },
   });
+  
+  console.log(`[API] Response status: ${response.status} for ${url}`); // Debug log
   return handleResponse(response);
 };
 
