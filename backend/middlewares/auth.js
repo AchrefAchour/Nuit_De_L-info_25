@@ -8,21 +8,28 @@ const authenticate = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[AUTH] No token provided for:', req.path);
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
 
     const token = authHeader.split(' ')[1];
+    console.log('[AUTH] Verifying token for:', req.path);
+    
     const decoded = jwt.verify(token, config.jwt.secret);
+    console.log('[AUTH] Token decoded successfully, user ID:', decoded.id);
     
     const user = await Contributor.findByPk(decoded.id);
     
     if (!user || !user.isActive) {
+      console.log('[AUTH] User not found or inactive:', decoded.id);
       return res.status(401).json({ error: 'Invalid token or user inactive.' });
     }
 
     req.user = user;
+    console.log('[AUTH] Authentication successful for user:', user.email);
     next();
   } catch (error) {
+    console.error('[AUTH] Authentication error:', error.name, error.message);
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token.' });
     }

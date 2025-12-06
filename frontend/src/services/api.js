@@ -3,7 +3,13 @@ console.log('[API] API_BASE configured as:', API_BASE); // Debug log
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (token) {
+    console.log('[API] Token found in localStorage, length:', token.length);
+    return { Authorization: `Bearer ${token}` };
+  } else {
+    console.log('[API] No token found in localStorage');
+    return {};
+  }
 };
 
 const handleResponse = async (response) => {

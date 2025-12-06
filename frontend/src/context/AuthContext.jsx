@@ -38,7 +38,13 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const data = await authApi.login(email, password);
-      localStorage.setItem('token', data.token);
+      console.log('[AUTH] Login response:', data);
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log('[AUTH] Token stored in localStorage');
+      } else {
+        console.error('[AUTH] No token in login response!');
+      }
       setUser(data.user);
       return data;
     } catch (err) {
@@ -51,7 +57,13 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const data = await authApi.register(name, email, password);
-      localStorage.setItem('token', data.token);
+      console.log('[AUTH] Register response:', data);
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log('[AUTH] Token stored in localStorage');
+      } else {
+        console.error('[AUTH] No token in register response!');
+      }
       setUser(data.user);
       return data;
     } catch (err) {
