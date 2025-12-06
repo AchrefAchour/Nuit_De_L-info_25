@@ -1,0 +1,27 @@
+[build]
+  # Répertoire de base pour le build
+  base = "frontend"
+  
+  # Commande de build (installe les dépendances puis build)
+  command = "npm install && npm run build"
+  
+  # Répertoire de publication (où se trouve le build final)
+  publish = "frontend/dist"
+  
+  # Variables d'environnement (seront remplacées par celles configurées dans Netlify Dashboard)
+  # VITE_API_URL sera défini dans Netlify Dashboard
+
+# Redirections pour SPA (Single Page Application)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de sécurité
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
