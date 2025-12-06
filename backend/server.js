@@ -83,6 +83,25 @@ const startServer = async () => {
       console.log('✅ Database models synchronized.');
     }
 
+    // Initialize default states if they don't exist
+    const { State } = require('./models');
+    const defaultStates = [
+      { name: 'draft', label: 'Brouillon', color: '#6B7280', order: 1, isInitial: true, description: 'Document en cours de rédaction' },
+      { name: 'submitted', label: 'Soumis', color: '#3B82F6', order: 2, description: 'Document soumis pour révision' },
+      { name: 'review', label: 'En révision', color: '#F59E0B', order: 3, description: 'Document en cours de révision' },
+      { name: 'validated', label: 'Validé', color: '#10B981', order: 4, description: 'Document validé' },
+      { name: 'published', label: 'Publié', color: '#8B5CF6', order: 5, isFinal: true, description: 'Document publié' },
+      { name: 'rejected', label: 'Rejeté', color: '#EF4444', order: 6, description: 'Document rejeté' },
+    ];
+
+    for (const stateData of defaultStates) {
+      await State.findOrCreate({
+        where: { name: stateData.name },
+        defaults: stateData,
+      });
+    }
+    console.log('✅ Default states initialized.');
+
     const port = config.server.port || 3001;
     app.listen(port, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${port}`);

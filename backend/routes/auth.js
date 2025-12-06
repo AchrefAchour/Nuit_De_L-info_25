@@ -8,7 +8,17 @@ const { validate } = require('../middlewares/validate');
 // Register
 router.post('/register', [
   body('name').notEmpty().withMessage('Name is required').trim(),
-  body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('email')
+    .notEmpty().withMessage('Email is required')
+    .custom((value) => {
+      // More permissive email validation that accepts .local domains
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        throw new Error('Valid email is required');
+      }
+      return true;
+    })
+    .customSanitizer((value) => value.toLowerCase().trim()),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('role').optional().isIn(['contributor', 'admin']).withMessage('Role must be contributor or admin'),
   validate,
@@ -16,7 +26,17 @@ router.post('/register', [
 
 // Login
 router.post('/login', [
-  body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('email')
+    .notEmpty().withMessage('Email is required')
+    .custom((value) => {
+      // More permissive email validation that accepts .local domains
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        throw new Error('Valid email is required');
+      }
+      return true;
+    })
+    .customSanitizer((value) => value.toLowerCase().trim()),
   body('password').notEmpty().withMessage('Password is required'),
   validate,
 ], authController.login);
