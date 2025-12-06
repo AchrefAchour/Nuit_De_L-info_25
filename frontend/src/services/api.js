@@ -37,7 +37,15 @@ const handleResponse = async (response) => {
   }
   
   if (!response.ok) {
-    throw new Error(data.error || `Erreur ${response.status}: Une erreur est survenue`);
+    // Include validation details if available
+    const error = new Error(data.error || data.message || `Erreur ${response.status}: Une erreur est survenue`);
+    if (data.details) {
+      error.details = data.details;
+    }
+    if (data.message) {
+      error.message = data.message;
+    }
+    throw error;
   }
   return data;
 };
@@ -67,10 +75,10 @@ export const authApi = {
       body: JSON.stringify({ email, password }),
     }),
 
-  register: (name, email, password) =>
+  register: (name, email, password, role) =>
     apiRequest('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, role }),
     }),
 
   getMe: () => apiRequest('/auth/me'),

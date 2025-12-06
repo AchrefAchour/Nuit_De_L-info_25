@@ -8,6 +8,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('contributor');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
@@ -44,7 +45,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register(name, email, password);
+      await register(name, email, password, role);
       navigate('/app');
     } catch (err) {
       setError(err.message || 'Erreur lors de l\'inscription');
@@ -219,6 +220,30 @@ const Register = () => {
                 minLength={6}
                 autoComplete="new-password"
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="role">
+                <Shield size={18} />
+                <span>Type de compte</span>
+              </label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: '#fff',
+                  fontSize: '16px',
+                }}
+              >
+                <option value="contributor">Contributeur</option>
+                <option value="admin">Administrateur</option>
+              </select>
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>

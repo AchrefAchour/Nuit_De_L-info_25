@@ -93,10 +93,20 @@ const EntityCreate = () => {
     setLoading(true);
 
     try {
+      console.log('[EntityCreate] Submitting form data:', formData);
       const data = await entitiesApi.create(formData);
       navigate(`/app/solutions/${data.entity.id}`);
     } catch (err) {
-      setError(err.message);
+      console.error('[EntityCreate] Error creating entity:', err);
+      // Show detailed validation errors if available
+      if (err.message && err.message.includes('Validation failed')) {
+        setError(err.message);
+      } else if (err.details && Array.isArray(err.details)) {
+        const errorDetails = err.details.map(d => `${d.field}: ${d.message}`).join(', ');
+        setError(`Erreur de validation: ${errorDetails}`);
+      } else {
+        setError(err.message || 'Erreur lors de la création de l\'entité');
+      }
       setLoading(false);
     }
   };

@@ -10,6 +10,7 @@ router.post('/register', [
   body('name').notEmpty().withMessage('Name is required').trim(),
   body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('role').optional().isIn(['contributor', 'admin']).withMessage('Role must be contributor or admin'),
   validate,
 ], authController.register);
 
